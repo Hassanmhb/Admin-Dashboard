@@ -5,7 +5,6 @@ import {
   TableHead, TableRow, Paper, CircularProgress, Chip, Button
 } from '@mui/material';
 
-// Environment variable se live backend URL pick karega, fallback local backend par rakha hai
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://shop-ecommerce-backend.vercel.app';
 const API_BASE = `${BASE_URL}/api`;
 
@@ -45,13 +44,20 @@ const OrderList = () => {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, fontSize: { xs: '20px', sm: '24px' } }}>
         All Orders ({orders.length})
       </Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-        <Table>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: '16px', 
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+          overflowX: 'auto'
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
           <TableHead sx={{ backgroundColor: '#f8fafc' }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Order ID</TableCell>
@@ -66,7 +72,7 @@ const OrderList = () => {
             {orders.length > 0 ? (
               orders.map((row) => (
                 <TableRow key={row._id} hover>
-                  <TableCell sx={{ color: '#6B21A8', fontWeight: 600 }}>{row._id}</TableCell>
+                  <TableCell sx={{ color: '#6B21A8', fontWeight: 600, wordBreak: 'break-all' }}>{row._id}</TableCell>
                   <TableCell>{row.customerDetails?.name || 'N/A'}</TableCell>
                   <TableCell>Rs. {row.totalAmount || 0}</TableCell>
                   <TableCell>{row.paymentMethod || 'COD'}</TableCell>
@@ -77,7 +83,7 @@ const OrderList = () => {
                     <Button 
                       size="small" 
                       variant="contained" 
-                      sx={{ backgroundColor: '#6B21A8' }}
+                      sx={{ backgroundColor: '#6B21A8', textTransform: 'none' }}
                       onClick={() => navigate(`/orders/details/${row._id}`)}
                     >
                       View

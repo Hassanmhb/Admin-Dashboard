@@ -48,7 +48,6 @@ const ProductsPage = () => {
     loadProducts();
   }, []);
 
-  // Cleanup object URLs to avoid memory leaks
   useEffect(() => {
     return () => {
       if (imagePreview && imagePreview.startsWith('blob:')) {
@@ -178,7 +177,7 @@ const ProductsPage = () => {
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: '#121926' }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: '#121926', fontSize: { xs: '20px', sm: '24px' } }}>
             Products Management
           </Typography>
           <Typography variant="body2" sx={{ color: '#697586', mt: 0.5 }}>
@@ -213,8 +212,8 @@ const ProductsPage = () => {
               <CircularProgress sx={{ color: '#5E35B1' }} />
             </Box>
           ) : (
-            <TableContainer component={Paper} elevation={0}>
-              <Table>
+            <TableContainer component={Paper} elevation={0} sx={{ overflowX: 'auto' }}>
+              <Table sx={{ minWidth: 650 }}>
                 <TableHead sx={{ backgroundColor: '#F8FAFC' }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 700, color: '#364152' }}>Image</TableCell>
@@ -273,7 +272,7 @@ const ProductsPage = () => {
             border: '1px solid rgba(255, 255, 255, 0.8)',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
-            m: 2,
+            m: { xs: 2, sm: 3 },
           },
         }}
       >
@@ -365,7 +364,7 @@ const ProductsPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justify: 'center',
+                    justifyContent: 'center',
                     cursor: 'pointer',
                     textAlign: 'center',
                     minHeight: '76px',

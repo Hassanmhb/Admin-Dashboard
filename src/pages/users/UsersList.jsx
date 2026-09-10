@@ -62,7 +62,7 @@ const UsersList = () => {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, fontSize: { xs: '20px', sm: '24px' } }}>
         Checkout Customers List ({users.length})
       </Typography>

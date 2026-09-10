@@ -29,7 +29,6 @@ const OrderDetails = () => {
 
         let targetId = id;
 
-        // Agar Sidebar se direct click hokar bina ID ke aaya hai, to latest order pick karenge
         if (!targetId) {
           const resAll = await fetch(`${API_BASE}/orders`, { headers });
           const dataAll = await resAll.json();
@@ -63,19 +62,19 @@ const OrderDetails = () => {
   if (!order) return <Box sx={{ p: 3 }}><Alert severity="info">No Order Data Found</Alert></Box>;
 
   return (
-    <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 900, mx: 'auto' }}>
       <Button 
         startIcon={<ArrowBackIcon />} 
         onClick={() => navigate('/orders/list')} 
-        sx={{ mb: 2, color: '#6B21A8', fontWeight: 700 }}
+        sx={{ mb: 2, color: '#6B21A8', fontWeight: 700, textTransform: 'none' }}
       >
         Back to List
       </Button>
 
-      <Card elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: '16px', p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center' }}>
+      <Card elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: '16px', p: { xs: 2, sm: 3 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 1.5 }}>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A' }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', fontSize: { xs: '18px', sm: '24px' } }}>
               Order #{order._id?.slice(-6).toUpperCase()}
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B' }}>
@@ -92,7 +91,7 @@ const OrderDetails = () => {
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle2" sx={{ color: '#64748B', fontWeight: 700 }}>CUSTOMER DETAILS</Typography>
             <Typography variant="body1" sx={{ fontWeight: 600, mt: 1 }}>{order.customerDetails?.name || 'N/A'}</Typography>
-            <Typography variant="body2" sx={{ color: '#334155' }}>{order.customerDetails?.email || 'N/A'}</Typography>
+            <Typography variant="body2" sx={{ color: '#334155', wordBreak: 'break-all' }}>{order.customerDetails?.email || 'N/A'}</Typography>
             <Typography variant="body2" sx={{ color: '#334155' }}>{order.customerDetails?.phone || 'N/A'}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -103,8 +102,8 @@ const OrderDetails = () => {
         </Grid>
 
         {/* Items Table */}
-        <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', mb: 3, borderRadius: '12px' }}>
-          <Table>
+        <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', mb: 3, borderRadius: '12px', overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 500 }}>
             <TableHead sx={{ backgroundColor: '#F8FAFC' }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700 }}>Item</TableCell>
@@ -130,7 +129,7 @@ const OrderDetails = () => {
         </TableContainer>
 
         <Box sx={{ textAlign: 'right' }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: '#6B21A8' }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, color: '#6B21A8', fontSize: { xs: '18px', sm: '20px' } }}>
             Grand Total: Rs. {order.totalAmount}
           </Typography>
         </Box>
