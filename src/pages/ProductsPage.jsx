@@ -16,12 +16,10 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Modal & Edit State
   const [openModal, setOpenModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  // Form State
   const [formData, setFormData] = useState({
     title: '',
     price: '',
@@ -32,7 +30,6 @@ const ProductsPage = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Load Products
   const loadProducts = async () => {
     setLoading(true);
     setError('');
@@ -51,9 +48,21 @@ const ProductsPage = () => {
     loadProducts();
   }, []);
 
+  // Cleanup object URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
       setFormData((prev) => ({ ...prev, imageUrl: '' }));
@@ -61,16 +70,22 @@ const ProductsPage = () => {
   };
 
   const handleRemoveImage = () => {
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
     setImageFile(null);
     setImagePreview(null);
     setFormData((prev) => ({ ...prev, imageUrl: '' }));
   };
 
-  const handleOpenCreateModal = () => {
-    setEditingId(null);
+  const resetForm = () => {
+    handleRemoveImage();
     setFormData({ title: '', price: '', category: '', description: '', imageUrl: '' });
-    setImageFile(null);
-    setImagePreview(null);
+    setEditingId(null);
+  };
+
+  const handleOpenCreateModal = () => {
+    resetForm();
     setOpenModal(true);
   };
 
@@ -88,11 +103,10 @@ const ProductsPage = () => {
     setOpenModal(true);
   };
 
-  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!editingId && !imageFile && !formData.imageUrl) {
-      alert('Khabardar! Image Upload karein ya Direct Image URL dein.');
+      alert('Please upload an image or provide an Image URL.');
       return;
     }
 
@@ -116,17 +130,15 @@ const ProductsPage = () => {
 
       if (editingId) {
         await updateProduct(editingId, bodyFormData, token);
-        alert('Product successfully update ho gaya hai!');
+        alert('Product updated successfully!');
       } else {
         await createProduct(bodyFormData, token);
-        alert('Product successfully save ho gaya hai!');
+        alert('Product created successfully!');
       }
 
       await loadProducts();
       setOpenModal(false);
-      setFormData({ title: '', price: '', category: '', description: '', imageUrl: '' });
-      setImageFile(null);
-      setImagePreview(null);
+      resetForm();
     } catch (err) {
       alert(`Operation Failed: ${err.message}`);
     } finally {
@@ -135,18 +147,17 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Kya aap is product ko delete karna chahte hain?')) return;
+    if (!window.confirm('Do you want to delete this product?')) return;
 
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
       await deleteProduct(id, token);
       setProducts((prev) => prev.filter((p) => p._id !== id));
     } catch (err) {
-      alert(err.message || 'Delete fail ho gaya');
+      alert(err.message || 'Delete failed, please try again');
     }
   };
 
-  // Reusable Input Style for precise match & no-scroll layout
   const inputStyle = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '12px',
@@ -165,14 +176,13 @@ const ProductsPage = () => {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      {/* Header Section */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#121926' }}>
             Products Management
           </Typography>
           <Typography variant="body2" sx={{ color: '#697586', mt: 0.5 }}>
-            Add, edit, view and delete store products
+            Add, edit, view, and delete store products
           </Typography>
         </Box>
         <Button
@@ -196,7 +206,6 @@ const ProductsPage = () => {
 
       {error && <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>{error}</Alert>}
 
-      {/* Table Section */}
       <Card elevation={0} sx={{ borderRadius: '16px', border: '1px solid #E3E8EF', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <CardContent sx={{ p: 0 }}>
           {loading ? (
@@ -251,7 +260,6 @@ const ProductsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Glassmorphic Modal (No Scroll, Exact UI Match) */}
       <Dialog
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -260,26 +268,22 @@ const ProductsPage = () => {
         PaperProps={{
           sx: {
             borderRadius: '16px',
-            background: 'rgba(255, 255, 255, 0.75)',
+            background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(255, 255, 255, 0.8)',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
             m: 2,
           },
         }}
-        BackdropProps={{
-          sx: { backgroundColor: 'rgba(15, 23, 42, 0.25)' },
-        }}
       >
         <DialogTitle sx={{ p: 2.5, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '1.2rem', lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '1.2rem' }}>
               {editingId ? 'Edit Product' : 'Add New Store Product'}
             </Typography>
             <Typography variant="body2" sx={{ color: '#64748B', fontSize: '0.8rem', mt: 0.5 }}>
-              Fill in the attributes below to publish your inventory item.
+              Fill in the details below to save your inventory item.
             </Typography>
           </Box>
           <IconButton onClick={() => setOpenModal(false)} size="small" sx={{ color: '#94A3B8', p: 0.5 }}>
@@ -288,16 +292,15 @@ const ProductsPage = () => {
         </DialogTitle>
 
         <form onSubmit={handleSubmit}>
-          <DialogContent sx={{ px: 2.5, py: 1, overflow: 'hidden' }}>
-            <Grid container spacing={1.5}>
-              {/* Product Title */}
-              <Grid item xs={6}>
+          <DialogContent sx={{ px: 2.5, py: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', mb: 0.5, display: 'block' }}>
                   Product Title *
                 </Typography>
                 <TextField
                   fullWidth
-                  placeholder="e.g. Classic Cotton T-Shi"
+                  placeholder="e.g. Classic Cotton T-Shirt"
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -305,8 +308,7 @@ const ProductsPage = () => {
                 />
               </Grid>
 
-              {/* Price */}
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', mb: 0.5, display: 'block' }}>
                   Price *
                 </Typography>
@@ -321,8 +323,7 @@ const ProductsPage = () => {
                 />
               </Grid>
 
-              {/* Category */}
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', mb: 0.5, display: 'block' }}>
                   Category
                 </Typography>
@@ -335,8 +336,7 @@ const ProductsPage = () => {
                 />
               </Grid>
 
-              {/* Description */}
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', mb: 0.5, display: 'block' }}>
                   Description
                 </Typography>
@@ -344,20 +344,16 @@ const ProductsPage = () => {
                   fullWidth
                   multiline
                   rows={2}
-                  placeholder="Add a detailed product description..."
+                  placeholder="Add a detailed description..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  sx={{
-                    ...inputStyle,
-                    '& .MuiInputBase-root': { py: 0.8, px: 1.5 },
-                  }}
+                  sx={inputStyle}
                 />
               </Grid>
 
-              {/* Upload Box */}
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', mb: 0.5, display: 'block' }}>
-                  Product Image
+                  Product Image File
                 </Typography>
                 <Box
                   component="label"
@@ -369,52 +365,40 @@ const ProductsPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justify: 'center',
                     cursor: 'pointer',
                     textAlign: 'center',
-                    height: '76px',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(237, 231, 246, 0.4)',
-                      borderColor: '#5E35B1',
-                    },
+                    minHeight: '76px',
+                    '&:hover': { backgroundColor: 'rgba(237, 231, 246, 0.4)', borderColor: '#5E35B1' },
                   }}
                 >
                   <CloudUploadOutlinedIcon sx={{ fontSize: 22, color: '#651FFF', mb: 0.3 }} />
-                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.75rem', lineHeight: 1.1 }}>
-                    Click to upload from computer
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.65rem', mt: 0.2 }}>
-                    Supports PNG, JPG, JPEG, WEBP
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.75rem' }}>
+                    Upload file
                   </Typography>
                   <input type="file" accept="image/*" hidden onChange={handleImageChange} />
                 </Box>
               </Grid>
 
-              {/* Direct Image URL */}
-              <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <Box sx={{ width: '100%' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#94A3B8', mb: 0.5, display: 'block', textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px' }}>
-                    OR USE IMAGE URL
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="Paste direct image URL ("
-                    value={formData.imageUrl}
-                    onChange={(e) => {
-                      setFormData({ ...formData, imageUrl: e.target.value });
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                    sx={inputStyle}
-                  />
-                </Box>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#94A3B8', mb: 0.5, display: 'block', fontSize: '0.65rem' }}>
+                  OR USE IMAGE URL
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder="Paste direct image URL"
+                  value={formData.imageUrl}
+                  onChange={(e) => {
+                    handleRemoveImage();
+                    setFormData((prev) => ({ ...prev, imageUrl: e.target.value }));
+                  }}
+                  sx={inputStyle}
+                />
 
-                {/* Preview Thumbnail if selected */}
                 {(imagePreview || formData.imageUrl) && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                    <Box component="img" src={imagePreview || formData.imageUrl} alt="preview" sx={{ width: 24, height: 24, borderRadius: '4px', objectFit: 'cover' }} />
-                    <Typography variant="caption" sx={{ color: '#5E35B1', fontWeight: 600, fontSize: '0.7rem' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <Box component="img" src={imagePreview || formData.imageUrl} alt="preview" sx={{ width: 28, height: 28, borderRadius: '4px', objectFit: 'cover' }} />
+                    <Typography variant="caption" sx={{ color: '#5E35B1', fontWeight: 600, fontSize: '0.75rem' }}>
                       Image Selected
                     </Typography>
                     <IconButton size="small" onClick={handleRemoveImage} sx={{ p: 0.2, ml: 'auto' }}>
@@ -426,19 +410,8 @@ const ProductsPage = () => {
             </Grid>
           </DialogContent>
 
-          {/* Action Buttons */}
-          <DialogActions sx={{ p: 2, pt: 1.5, justifyContent: 'flex-end', gap: 1 }}>
-            <Button
-              onClick={() => setOpenModal(false)}
-              sx={{
-                color: '#64748B',
-                fontWeight: 700,
-                textTransform: 'none',
-                px: 2.5,
-                borderRadius: '10px',
-                fontSize: '0.875rem',
-              }}
-            >
+          <DialogActions sx={{ p: 2, pt: 1.5, gap: 1 }}>
+            <Button onClick={() => setOpenModal(false)} sx={{ color: '#64748B', fontWeight: 700, textTransform: 'none' }}>
               Cancel
             </Button>
             <Button
@@ -450,10 +423,7 @@ const ProductsPage = () => {
                 borderRadius: '10px',
                 fontWeight: 700,
                 px: 3,
-                py: 0.8,
                 textTransform: 'none',
-                fontSize: '0.875rem',
-                boxShadow: 'none',
                 '&:hover': { backgroundColor: '#4527A0' },
               }}
             >

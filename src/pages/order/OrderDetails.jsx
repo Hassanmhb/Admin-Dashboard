@@ -7,9 +7,8 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const API_BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : 'https://shop-ecommerce-backend-pk6z857yf-hassanmhbs-projects.vercel.app';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://shop-ecommerce-backend.vercel.app';
+const API_BASE = `${BASE_URL.replace(/\/$/, '')}/api`;
 
 const OrderDetails = () => {
   const { id } = useParams();
@@ -22,14 +21,17 @@ const OrderDetails = () => {
     const fetchOrderDetails = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('adminToken');
-        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        };
 
         let targetId = id;
 
         // Agar Sidebar se direct click hokar bina ID ke aaya hai, to latest order pick karenge
         if (!targetId) {
-          const resAll = await fetch(`${API_BASE}/api/orders`, { headers });
+          const resAll = await fetch(`${API_BASE}/orders`, { headers });
           const dataAll = await resAll.json();
           const ordersList = Array.isArray(dataAll) ? dataAll : dataAll.orders || [];
 
@@ -40,7 +42,7 @@ const OrderDetails = () => {
           }
         }
 
-        const res = await fetch(`${API_BASE}/api/orders/${targetId}`, { headers });
+        const res = await fetch(`${API_BASE}/orders/${targetId}`, { headers });
         const data = await res.json();
         
         if (!res.ok) throw new Error(data.message || 'Details fetch nahi ho sakin.');

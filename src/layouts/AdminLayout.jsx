@@ -37,28 +37,29 @@ import { useAdminAuth } from '../context/AdminAuthContext';
 
 const DRAWER_WIDTH = 260;
 
+// Dynamic Base Routing to support nested <Route path="dashboard"> properly
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardOutlinedIcon />, path: '/dashboard' },
   {
     text: 'Products',
     icon: <Inventory2OutlinedIcon />,
     children: [
-      { text: 'List', path: '/products' },
+      { text: 'List', path: '/dashboard/products' },
     ],
   },
   {
     text: 'Users',
     icon: <AdminPanelSettingsOutlinedIcon />,
     children: [
-      { text: 'List', path: '/users/list' },
+      { text: 'List', path: '/dashboard/users/list' },
     ],
   },
   {
     text: 'Order',
     icon: <ShoppingBagOutlinedIcon />,
     children: [
-      { text: 'List', path: '/orders/list' },
-      { text: 'Details', path: '/orders/details' },
+      { text: 'List', path: '/dashboard/orders/list' },
+      { text: 'Details', path: '/dashboard/orders/details' },
     ],
   },
 ];
@@ -68,10 +69,8 @@ const AdminLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Auth Context Hook Integration
-  const { logoutAdmin } = useAdminAuth();
+  const { logoutAdmin, admin } = useAdminAuth();
 
-  // Search Functionality States
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -88,10 +87,10 @@ const AdminLayout = () => {
   useEffect(() => {
     if (searchTerm.trim() !== '') {
       const staticPages = [
-        { id: 1, name: 'Products List', path: '/products' },
-        { id: 2, name: 'Users List', path: '/users/list' },
-        { id: 3, name: 'Orders List', path: '/orders/list' },
-        { id: 4, name: 'Order Details', path: '/orders/details' },
+        { id: 1, name: 'Products List', path: '/dashboard/products' },
+        { id: 2, name: 'Users List', path: '/dashboard/users/list' },
+        { id: 3, name: 'Orders List', path: '/dashboard/orders/list' },
+        { id: 4, name: 'Order Details', path: '/dashboard/orders/details' },
       ];
 
       const filtered = staticPages.filter((item) =>
@@ -117,7 +116,6 @@ const AdminLayout = () => {
     setShowSearchResults(false);
   };
 
-  // 🟢 Fixed Logout Handler (Prevents Back Button Access)
   const handleLogout = () => {
     if (logoutAdmin) {
       logoutAdmin();
@@ -132,10 +130,10 @@ const AdminLayout = () => {
     <Box sx={{ height: '100%', backgroundColor: '#FFF', borderRight: '1px solid #E3E8EF' }}>
       <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Avatar sx={{ backgroundColor: '#5E35B1', width: 38, height: 38, fontWeight: 700 }}>
-          H
+          {admin?.name ? admin.name.charAt(0).toUpperCase() : 'A'}
         </Avatar>
         <Typography variant="h6" sx={{ fontWeight: 800, color: '#121926', letterSpacing: 0.5 }}>
-          HASSAN ADMIN
+          {admin?.name ? `${admin.name.toUpperCase()} ADMIN` : 'ADMIN PANEL'}
         </Typography>
       </Box>
 
@@ -158,9 +156,11 @@ const AdminLayout = () => {
         {menuItems.map((item) => {
           const hasChildren = Boolean(item.children);
           const isSectionOpen = Boolean(openSections[item.text]);
+          
+          // Robust Route matching logic for both Root & Nested Routes
           const isParentSelected = item.path 
             ? location.pathname === item.path
-            : location.pathname.startsWith(`/${item.text.toLowerCase()}`);
+            : item.children?.some(child => location.pathname.startsWith(child.path));
 
           return (
             <React.Fragment key={item.text}>
@@ -169,7 +169,7 @@ const AdminLayout = () => {
                   onClick={() => {
                     if (hasChildren) {
                       handleSectionClick(item.text);
-                    } else {
+                    } else if (item.path) {
                       navigate(item.path);
                       if (isMobile) setMobileOpen(false);
                     }
@@ -222,7 +222,7 @@ const AdminLayout = () => {
                     }}
                   >
                     {item.children.map((child) => {
-                      const isChildSelected = location.pathname === child.path;
+                      const isChildSelected = location.pathname.startsWith(child.path);
                       return (
                         <ListItem key={child.text} disablePadding sx={{ my: 0.2 }}>
                           <ListItemButton

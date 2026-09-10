@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Box,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Collapse,
-  Typography,
+  Box, List, ListItemButton, ListItemIcon, ListItemText, Collapse, Typography
 } from '@mui/material';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
@@ -20,9 +14,15 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 const Sidebar = () => {
   const location = useLocation();
 
-  const [openProducts, setOpenProducts] = useState(true);
-  const [openUsers, setOpenUsers] = useState(true);
-  const [openOrders, setOpenOrders] = useState(true);
+  const [openProducts, setOpenProducts] = useState(location.pathname.includes('/products'));
+  const [openUsers, setOpenUsers] = useState(location.pathname.includes('/users'));
+  const [openOrders, setOpenOrders] = useState(location.pathname.includes('/orders'));
+
+  const activeStyle = {
+    backgroundColor: '#F3E8FF',
+    color: '#6B21A8',
+    fontWeight: 700,
+  };
 
   return (
     <Box sx={{ width: 260, backgroundColor: '#FFFFFF', minHeight: '100vh', p: 2, borderRight: '1px solid #E2E8F0' }}>
@@ -31,7 +31,7 @@ const Sidebar = () => {
       </Typography>
 
       <List component="nav" disablePadding>
-        {/* 1. Dashboard Home Link */}
+        {/* Dashboard */}
         <ListItemButton
           component={Link}
           to="/dashboard"
@@ -40,55 +40,34 @@ const Sidebar = () => {
             borderRadius: '12px',
             color: location.pathname === '/dashboard' ? '#6B21A8' : '#475569',
             backgroundColor: location.pathname === '/dashboard' ? '#F3E8FF' : 'transparent',
-            '&:hover': { backgroundColor: '#F3E8FF', color: '#6B21A8' },
+            '&:hover': activeStyle,
             mb: 1,
           }}
         >
           <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
             <DashboardOutlinedIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Dashboard</Typography>}
-          />
+          <ListItemText primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Dashboard</Typography>} />
         </ListItemButton>
 
-        {/* 2. Products Menu (No Create) */}
+        {/* Products */}
         <ListItemButton
           onClick={() => setOpenProducts(!openProducts)}
           sx={{
             borderRadius: '12px',
-            backgroundColor: openProducts ? '#F3E8FF' : 'transparent',
-            color: '#6B21A8',
-            '&:hover': { backgroundColor: '#F3E8FF' },
+            color: location.pathname.includes('/products') ? '#6B21A8' : '#475569',
             mb: 1,
           }}
         >
-          <ListItemIcon sx={{ color: '#6B21A8', minWidth: 36 }}>
+          <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
             <ShoppingBagOutlinedIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Products</Typography>}
-          />
+          <ListItemText primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Products</Typography>} />
           {openProducts ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
 
         <Collapse in={openProducts} timeout="auto" unmountOnExit>
-          <Box
-            sx={{
-              pl: 3.5,
-              position: 'relative',
-              mb: 1,
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                left: '20px',
-                top: 0,
-                bottom: 0,
-                width: '1px',
-                backgroundColor: '#E9D5FF',
-              },
-            }}
-          >
+          <Box sx={{ pl: 3.5, position: 'relative', mb: 1 }}>
             <ListItemButton
               component={Link}
               to="/dashboard/products"
@@ -98,54 +77,29 @@ const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 24 }}>
                 <FiberManualRecordIcon sx={{ fontSize: 8, color: '#6B21A8' }} />
               </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>
-                    List
-                  </Typography>
-                }
-              />
+              <ListItemText primary={<Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>List</Typography>} />
             </ListItemButton>
           </Box>
         </Collapse>
 
-        {/* 3. Users Menu (Only List - Social/Profile/Cards removed) */}
+        {/* Users */}
         <ListItemButton
           onClick={() => setOpenUsers(!openUsers)}
           sx={{
             borderRadius: '12px',
-            backgroundColor: openUsers ? '#F3E8FF' : 'transparent',
-            color: '#6B21A8',
-            '&:hover': { backgroundColor: '#F3E8FF' },
+            color: location.pathname.includes('/users') ? '#6B21A8' : '#475569',
             mb: 1,
           }}
         >
-          <ListItemIcon sx={{ color: '#6B21A8', minWidth: 36 }}>
+          <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
             <PersonOutlineIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Users</Typography>}
-          />
+          <ListItemText primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Users</Typography>} />
           {openUsers ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
 
         <Collapse in={openUsers} timeout="auto" unmountOnExit>
-          <Box
-            sx={{
-              pl: 3.5,
-              position: 'relative',
-              mb: 1,
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                left: '20px',
-                top: 0,
-                bottom: 0,
-                width: '1px',
-                backgroundColor: '#E9D5FF',
-              },
-            }}
-          >
+          <Box sx={{ pl: 3.5, position: 'relative', mb: 1 }}>
             <ListItemButton
               component={Link}
               to="/dashboard/users/list"
@@ -155,53 +109,29 @@ const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 24 }}>
                 <FiberManualRecordIcon sx={{ fontSize: 8, color: '#6B21A8' }} />
               </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>
-                    List
-                  </Typography>
-                }
-              />
+              <ListItemText primary={<Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>List</Typography>} />
             </ListItemButton>
           </Box>
         </Collapse>
 
-        {/* 4. Order Menu (Only List & Details - Create/Edit removed) */}
+        {/* Orders */}
         <ListItemButton
           onClick={() => setOpenOrders(!openOrders)}
           sx={{
             borderRadius: '12px',
-            backgroundColor: openOrders ? '#F3E8FF' : 'transparent',
-            color: '#6B21A8',
-            '&:hover': { backgroundColor: '#F3E8FF' },
+            color: location.pathname.includes('/orders') ? '#6B21A8' : '#475569',
             mb: 1,
           }}
         >
-          <ListItemIcon sx={{ color: '#6B21A8', minWidth: 36 }}>
+          <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
             <ShoppingCartOutlinedIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Order</Typography>}
-          />
+          <ListItemText primary={<Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>Orders</Typography>} />
           {openOrders ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
 
         <Collapse in={openOrders} timeout="auto" unmountOnExit>
-          <Box
-            sx={{
-              pl: 3.5,
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                left: '20px',
-                top: 0,
-                bottom: 0,
-                width: '1px',
-                backgroundColor: '#E9D5FF',
-              },
-            }}
-          >
+          <Box sx={{ pl: 3.5, position: 'relative' }}>
             <ListItemButton
               component={Link}
               to="/dashboard/orders/list"
@@ -211,13 +141,7 @@ const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 24 }}>
                 <FiberManualRecordIcon sx={{ fontSize: 8, color: '#6B21A8' }} />
               </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>
-                    List
-                  </Typography>
-                }
-              />
+              <ListItemText primary={<Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>List</Typography>} />
             </ListItemButton>
 
             <ListItemButton
@@ -229,13 +153,7 @@ const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 24 }}>
                 <FiberManualRecordIcon sx={{ fontSize: 8, color: '#6B21A8' }} />
               </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>
-                    Details
-                  </Typography>
-                }
-              />
+              <ListItemText primary={<Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#6B21A8' }}>Details</Typography>} />
             </ListItemButton>
           </Box>
         </Collapse>

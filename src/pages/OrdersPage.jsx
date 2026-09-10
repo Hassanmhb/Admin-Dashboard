@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Card,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  Chip,
-  CircularProgress,
-  Alert,
-  Paper,
+  Box, Card, Typography, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Select, MenuItem,
+  CircularProgress, Alert, Paper
 } from '@mui/material';
+
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 1. Fetch All Orders
+  const getToken = () => localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/orders');
+      const response = await fetch(`${BASE_URL}/api/orders`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
+        },
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to fetch orders');
       setOrders(data.orders || data);
@@ -40,35 +36,29 @@ const OrdersPage = () => {
     fetchOrders();
   }, []);
 
-  // 2. Handle Status Dropdown Change
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/orders/${orderId}/status`, {
+      const response = await fetch(`${BASE_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
+        },
         body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!response.ok) throw new Error('Status update failed');
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Status update failed');
+      }
 
-      // State UI instant update
       setOrders((prev) =>
         prev.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
     } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'delivered': return 'success';
-      case 'shipped': return 'info';
-      case 'processing': return 'warning';
-      case 'cancelled': return 'error';
-      default: return 'default';
+      alert(`Error updating order: ${err.message}`);
     }
   };
 
@@ -112,8 +102,6 @@ const OrdersPage = () => {
                     <TableCell>{order.user?.name || order.customerName || 'N/A'}</TableCell>
                     <TableCell>{order.items?.length || 1} Items</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>PKR {order.totalAmount}</TableCell>
-                    
-                    {/* Status Dropdown Cell */}
                     <TableCell>
                       <Select
                         size="small"

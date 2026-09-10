@@ -14,18 +14,32 @@ import {
   Paper,
 } from '@mui/material';
 
+// Dynamic API URL from environment variable with Vercel fallback
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://shop-ecommerce-backend.vercel.app';
+const API_BASE = `${BASE_URL}/api`;
+
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/users')
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    
+    fetch(`${API_BASE}/users`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        setUsers(data.users || data);
+        setUsers(data.users || data || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error('Users fetch error:', err);
+        setLoading(false);
+      });
   }, []);
 
   return (

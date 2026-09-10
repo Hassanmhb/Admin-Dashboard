@@ -27,23 +27,24 @@ function App() {
           {/* Root Redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Protected Routes wrapped in AdminLayout */}
+          {/* Protected Routes wrapped in AdminGuard & AdminLayout */}
           <Route element={<AdminGuard />}>
             <Route element={<AdminLayout />}>
+              {/* Nested Dashboard Base Route */}
               <Route path="/dashboard" element={<DashboardHome />} />
+              
+              {/* Products Route */}
+              <Route path="/dashboard/products" element={<ProductsPage />} />
 
-              {/* 🟣 Users Route (Only List) */}
-              <Route path="/users" element={<Navigate to="/users/list" replace />} />
-              <Route path="/users/list" element={<UsersList />} />
+              {/* Users Routes */}
+              <Route path="/dashboard/users" element={<Navigate to="/dashboard/users/list" replace />} />
+              <Route path="/dashboard/users/list" element={<UsersList />} />
 
-              {/* 🟢 Order Routes (Only List & Details) */}
-              <Route path="/orders" element={<Navigate to="/orders/list" replace />} />
-              <Route path="/orders/list" element={<OrderList />} />
-              <Route path="/orders/details" element={<OrderDetails />} />
-              <Route path="/orders/details/:id" element={<OrderDetails />} />
-
-              {/* 📦 Products Route */}
-              <Route path="/products" element={<ProductsPage />} />
+              {/* Order Routes */}
+              <Route path="/dashboard/orders" element={<Navigate to="/dashboard/orders/list" replace />} />
+              <Route path="/dashboard/orders/list" element={<OrderList />} />
+              <Route path="/dashboard/orders/details" element={<OrderDetails />} />
+              <Route path="/dashboard/orders/details/:id" element={<OrderDetails />} />
             </Route>
           </Route>
 

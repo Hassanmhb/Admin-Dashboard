@@ -5,7 +5,9 @@ import {
   TableHead, TableRow, Paper, CircularProgress, Chip, Button
 } from '@mui/material';
 
-const API_BASE = 'http://localhost:8000';
+// Environment variable se live backend URL pick karega, fallback local backend par rakha hai
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://shop-ecommerce-backend.vercel.app';
+const API_BASE = `${BASE_URL}/api`;
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -21,11 +23,10 @@ const OrderList = () => {
           ...(token && { Authorization: `Bearer ${token}` }),
         };
 
-        let res = await fetch(`${API_BASE}/api/orders`, { headers });
-        
-        // Fallback for Vercel Backend if Localhost fails
+        const res = await fetch(`${API_BASE}/orders`, { headers });
+
         if (!res.ok) {
-          res = await fetch('https://shop-ecommerce-backend-pk6z857yf-hassanmhbs-projects.vercel.app/api/orders', { headers });
+          throw new Error('Failed to fetch orders');
         }
 
         const data = await res.json();

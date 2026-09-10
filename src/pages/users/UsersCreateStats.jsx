@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Card,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  CircularProgress,
-  Paper,
-  Grid,
+  Box, Card, Typography, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, CircularProgress, Paper, Grid
 } from '@mui/material';
+
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const UsersCreateStats = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
-    fetch('http://localhost:8000/api/users', {
+    fetch(`${BASE_URL}/api/users`, {
       headers: {
         'Content-Type': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -53,7 +45,6 @@ const UsersCreateStats = () => {
         User Creation Statistics
       </Typography>
 
-      {/* Cards View */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={4}>
           <Card
@@ -75,7 +66,6 @@ const UsersCreateStats = () => {
         </Grid>
       </Grid>
 
-      {/* Creation Log Table */}
       <Card elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: '16px' }}>
         <TableContainer component={Paper} elevation={0}>
           <Table>

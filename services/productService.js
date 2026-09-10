@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:8000/api/products';
+// Environment Variable se Backend URL read karega, backup me localhost rakha hai
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = `${BASE_URL}/api/products`;
 
 // 1. Fetch All Products
 export const fetchProducts = async () => {
@@ -22,7 +24,7 @@ export const createProduct = async (formData, token) => {
   return data;
 };
 
-// 3. Update Product (Naya Function)
+// 3. Update Product
 export const updateProduct = async (id, formData, token) => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',

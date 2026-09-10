@@ -29,6 +29,10 @@ const AdminAuth = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Dynamic API & E-commerce URLs
+  const BASE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const ECOMMERCE_SITE_URL = import.meta.env.VITE_ECOMMERCE_URL || 'http://localhost:5173';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,12 +44,8 @@ const AdminAuth = () => {
       return;
     }
 
-    const BACKEND_URL = window.location.hostname === 'localhost'
-      ? 'http://localhost:8000/api/auth'
-      : 'https://shop-ecommerce-backend-pk6z857yf-hassanmhbs-projects.vercel.app/api/auth';
-
     try {
-      const response = await fetch(`${BACKEND_URL}/login`, {
+      const response = await fetch(`${BASE_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -83,7 +83,6 @@ const AdminAuth = () => {
     >
       <CssBaseline />
 
-      {/* Decorative Blur Orbs */}
       <Box
         sx={{
           position: 'absolute',
@@ -111,7 +110,6 @@ const AdminAuth = () => {
         }}
       />
 
-      {/* Glassmorphism Card */}
       <Card
         elevation={0}
         sx={{
@@ -129,7 +127,6 @@ const AdminAuth = () => {
         }}
       >
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography
               variant="h4"
@@ -153,7 +150,6 @@ const AdminAuth = () => {
             </Alert>
           )}
 
-          {/* Form */}
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               placeholder="Email address"
@@ -240,11 +236,10 @@ const AdminAuth = () => {
             </Button>
           </Box>
 
-          {/* Go to Home Page Button linked to http://localhost:5173/ */}
           <Box sx={{ mt: 2.5, textAlign: 'center' }}>
             <Button
               component="a"
-              href="http://localhost:5173/"
+              href={ECOMMERCE_SITE_URL}
               startIcon={<HomeOutlinedIcon fontSize="small" />}
               sx={{
                 color: '#475569',
@@ -263,7 +258,6 @@ const AdminAuth = () => {
               Go to Home Page
             </Button>
           </Box>
-
         </CardContent>
       </Card>
     </Box>
