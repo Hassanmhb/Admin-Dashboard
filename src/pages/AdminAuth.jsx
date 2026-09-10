@@ -29,9 +29,11 @@ const AdminAuth = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Dynamic API & E-commerce URLs with safe fallbacks
+  // Dynamic API & E-commerce URLs
   const BASE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-  const ECOMMERCE_SITE_URL = import.meta.env.VITE_ECOMMERCE_URL || window.location.origin;
+  
+  // Yahan aapka Vercel URL direct fallback ya env variable se set kar diya hai
+  const ECOMMERCE_SITE_URL = import.meta.env.VITE_ECOMMERCE_URL || 'https://shop-ecommerce-frontend.vercel.app';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,14 +72,9 @@ const AdminAuth = () => {
 
   const handleGoHome = (e) => {
     e.preventDefault();
-    // Agar aapka home page same app ke andar hai (e.g. '/')
-    // toh aap navigate('/') use kar sakte hain. 
-    // Agar external site par hai toh window.location.href use hoga.
-    try {
-      window.location.href = ECOMMERCE_SITE_URL;
-    } catch (err) {
-      navigate('/');
-    }
+    // Agar single page app ke andar hi root par jana hai toh navigate('/') karein,
+    // aur agar Vercel ke main site par redirect karna hai toh window.location.href use hoga.
+    window.location.href = ECOMMERCE_SITE_URL;
   };
 
   return (
