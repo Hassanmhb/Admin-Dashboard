@@ -29,9 +29,9 @@ const AdminAuth = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Dynamic API & E-commerce URLs
+  // Dynamic API & E-commerce URLs with safe fallbacks
   const BASE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-  const ECOMMERCE_SITE_URL = import.meta.env.VITE_ECOMMERCE_URL || 'http://localhost:5173';
+  const ECOMMERCE_SITE_URL = import.meta.env.VITE_ECOMMERCE_URL || window.location.origin;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,6 +65,18 @@ const AdminAuth = () => {
       setError(err.message || 'Authentication error.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoHome = (e) => {
+    e.preventDefault();
+    // Agar aapka home page same app ke andar hai (e.g. '/')
+    // toh aap navigate('/') use kar sakte hain. 
+    // Agar external site par hai toh window.location.href use hoga.
+    try {
+      window.location.href = ECOMMERCE_SITE_URL;
+    } catch (err) {
+      navigate('/');
     }
   };
 
@@ -238,8 +250,7 @@ const AdminAuth = () => {
 
           <Box sx={{ mt: 2.5, textAlign: 'center' }}>
             <Button
-              component="a"
-              href={ECOMMERCE_SITE_URL}
+              onClick={handleGoHome}
               startIcon={<HomeOutlinedIcon fontSize="small" />}
               sx={{
                 color: '#475569',
